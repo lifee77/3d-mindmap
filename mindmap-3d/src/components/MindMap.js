@@ -16,7 +16,8 @@ function MindMap({
   selectedNode,
   setSelectedNode,
   selectedEdge,
-  setSelectedEdge
+  setSelectedEdge,
+  handleEdgeCreation
 }) {
   const handleNodeClick = (node) => {
     if (isConnecting) {
@@ -31,10 +32,9 @@ function MindMap({
           end: node.position,
           description: ''
         };
-        setEdges([...edges, newEdge]);
+        handleEdgeCreation(newEdge);
         setIsConnecting(false);
         setFirstNode(null);
-        setSelectedEdge(newEdge);
       }
     } else {
       setSelectedNode(node);

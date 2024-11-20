@@ -15,6 +15,7 @@ function App() {
   const [selectedEdge, setSelectedEdge] = useState(null);
   const [newLabel, setNewLabel] = useState('');
   const [edgeDescription, setEdgeDescription] = useState('');
+  const [showEdgeHint, setShowEdgeHint] = useState(false);
 
   const addNode = () => {
     const newNode = {
@@ -23,6 +24,8 @@ function App() {
       label: `Node ${nodes.length + 1}`,
     };
     setNodes([...nodes, newNode]);
+    setSelectedNode(newNode);
+    setNewLabel(newNode.label);
   };
 
   const startConnecting = () => {
@@ -56,6 +59,18 @@ function App() {
       setEdges(updatedEdges);
       setSelectedEdge(null);
     }
+  };
+
+  const handleFirstEdge = () => {
+    if (edges.length === 1) {
+      setShowEdgeHint(true);
+      setTimeout(() => setShowEdgeHint(false), 5000);
+    }
+  };
+
+  const handleEdgeCreation = (newEdge) => {
+    setEdges([...edges, newEdge]);
+    handleFirstEdge();
   };
 
   return (
@@ -179,6 +194,23 @@ function App() {
         </div>
       )}
 
+      {/* Edge Hint */}
+      {showEdgeHint && (
+        <div style={{
+          position: 'absolute',
+          top: '210px',
+          left: '10px',
+          zIndex: 1000,
+          background: '#e3f2fd',
+          padding: '10px',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+          animation: 'fadeIn 0.3s'
+        }}>
+          Tip: Click on any edge to add a description!
+        </div>
+      )}
+
       {/* 3D Canvas */}
       <Canvas camera={{ position: [0, 0, 10], fov: 60 }}>
         <ambientLight intensity={0.5} />
@@ -196,6 +228,7 @@ function App() {
           setSelectedNode={setSelectedNode}
           selectedEdge={selectedEdge}
           setSelectedEdge={setSelectedEdge}
+          handleEdgeCreation={handleEdgeCreation}
         />
         <OrbitControls />
       </Canvas>
