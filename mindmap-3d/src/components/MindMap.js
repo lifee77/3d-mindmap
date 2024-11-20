@@ -3,38 +3,48 @@ import React, { useState } from 'react';
 import Node from './Node';
 import Edge from './Edge';
 
-function MindMap() {
-  const [nodes, setNodes] = useState([
-    { id: 1, position: [0, 0, 0], label: 'Central Node' },
-  ]);
+function MindMap({ nodes, setNodes }) {
   const [edges, setEdges] = useState([]);
+  const [selectedNode, setSelectedNode] = useState(null);
+  const [connectingNode, setConnectingNode] = useState(null);
+  const [draggedNode, setDraggedNode] = useState(null);
 
-  const addNode = () => {
-    const newNode = {
-      id: nodes.length + 1,
-      position: [Math.random() * 4 - 2, Math.random() * 4 - 2, Math.random() * 4 - 2],
-      label: `Node ${nodes.length + 1}`,
-    };
-    setNodes([...nodes, newNode]);
+  // Function to handle connecting nodes
+  const handleNodeClick = (node) => {
+    if (connectingNode) {
+      // Connect nodes and create an edge
+      if (connectingNode.id !== node.id) {
+        setEdges([...edges, { start: connectingNode.position, end: node.position }]);
+      }
+      setConnectingNode(null); // Reset connecting node state
+    } else {
+      setConnectingNode(node); // Set the node to connect
+    }
   };
 
-  const addEdge = (startNode, endNode) => {
-    setEdges([...edges, { start: startNode.position, end: endNode.position }]);
+  // Function to handle node drag start
+  const handleNodeDragStart = (node) => {
+    setDraggedNode(node);
+  };
+
+  // Function to handle node drag movement
+  const handleNodeDrag = (e) => {
+    if (draggedNode) {
+      const newPosition = [e.point.x, e.point.y, e.point.z];
+      const updatedNodes = nodes.map((n) =>
+        n.id === draggedNode.id ? { ...n, position: newPosition } : n
+      );
+      setNodes(updatedNodes);
+    }
+  };
+
+  // Function to handle node drag end
+  const handleNodeDragEnd = () => {
+    setDraggedNode(null);
   };
 
   return (
     <>
-      <button
-        onClick={addNode}
-        style={{
-          position: 'absolute',
-          top: '10px',
-          left: '10px',
-          zIndex: 100,
-        }}
-      >
-        Add Node
-      </button>
       {edges.map((edge, idx) => (
         <Edge key={idx} start={edge.start} end={edge.end} />
       ))}
@@ -43,12 +53,10 @@ function MindMap() {
           key={node.id}
           position={node.position}
           label={node.label}
-          onUpdateLabel={(newLabel) => {
-            const updatedNodes = nodes.map((n) =>
-              n.id === node.id ? { ...n, label: newLabel } : n
-            );
-            setNodes(updatedNodes);
-          }}
+          onClick={() => handleNodeClick(node)}
+          onDragStart={() => handleNodeDragStart(node)}
+          onDrag={handleNodeDrag}
+          onDragEnd={handleNodeDragEnd}
         />
       ))}
     </>

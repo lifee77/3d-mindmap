@@ -1,57 +1,50 @@
 // src/components/Node.js
 import React, { useState } from 'react';
 import { Text } from '@react-three/drei';
+import { useThree } from '@react-three/fiber';
 
-function Node({ position, label, onUpdateLabel }) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [newLabel, setNewLabel] = useState(label);
+function Node({ position, label, onClick }) {
+  const { camera } = useThree();
+  const [dragging, setDragging] = useState(false);
+  const [draggedPosition, setDraggedPosition] = useState(position);
 
-  const handleLabelClick = () => {
-    setIsEditing(true);
+  const handlePointerDown = (e) => {
+    e.stopPropagation();
+    setDragging(true);
   };
 
-  const handleLabelChange = (e) => {
-    setNewLabel(e.target.value);
+  const handlePointerMove = (e) => {
+    if (!dragging) return;
+    e.stopPropagation();
+    const [x, y, z] = e.unprojectedPoint.toArray(); // Adjust projection as needed
+    setDraggedPosition([x, y, z]);
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      onUpdateLabel(newLabel);
-      setIsEditing(false);
-    }
+  const handlePointerUp = () => {
+    setDragging(false);
   };
 
   return (
-    <group position={position}>
+    <group
+      position={draggedPosition}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onClick={onClick}
+    >
       <mesh>
         <sphereGeometry args={[0.3, 32, 32]} />
         <meshStandardMaterial color="skyblue" />
       </mesh>
-      {isEditing ? (
-        <input
-          style={{
-            position: 'absolute',
-            left: `${position[0] * 100 + 200}px`,
-            top: `${-position[1] * 100 + 200}px`,
-            zIndex: 100,
-          }}
-          value={newLabel}
-          onChange={handleLabelChange}
-          onKeyPress={handleKeyPress}
-          autoFocus
-        />
-      ) : (
-        <Text
-          position={[0, -0.6, 0]}
-          fontSize={0.2}
-          color="black"
-          anchorX="center"
-          anchorY="middle"
-          onClick={handleLabelClick}
-        >
-          {label}
-        </Text>
-      )}
+      <Text
+        position={[0, -0.6, 0]}
+        fontSize={0.2}
+        color="black"
+        anchorX="center"
+        anchorY="middle"
+      >
+        {label}
+      </Text>
     </group>
   );
 }
