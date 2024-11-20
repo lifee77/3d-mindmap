@@ -1,18 +1,21 @@
 // src/components/Edge.js
-import React from 'react';
+import React, { useState } from 'react';
 import { Text, Line } from '@react-three/drei';
 
-function Edge({ start, end, description, onClick }) {
+function Edge({ start, end, description, onClick, isSelected }) {
   const points = [start, end];
   
   return (
-    <group onClick={onClick}>
+    <group onClick={(e) => {
+      e.stopPropagation();
+      onClick();
+    }}>
       <Line 
         points={points}
-        color="black"
+        color={isSelected ? "#ff9800" : "black"}
         lineWidth={2}
       />
-      {description && (
+      {isSelected && description && (
         <Text
           position={[
             (start[0] + end[0]) / 2,

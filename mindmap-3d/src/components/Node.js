@@ -24,14 +24,15 @@ function Node({ position, label, onClick, onDrag, isSelected, isConnecting }) {
   const handlePointerMove = (e) => {
     if (!dragging || isConnecting) return;
     e.stopPropagation();
+    
     // Calculate the new position in Three.js coordinates
     const newPosition = [e.point.x, e.point.y, e.point.z];
 
-    // Apply movement limits to prevent nodes from moving out of frame
+    // Apply tighter movement limits
     const limitedPosition = [
-      Math.max(Math.min(newPosition[0], 5), -5), // Limit x within [-5, 5]
-      Math.max(Math.min(newPosition[1], 5), -5), // Limit y within [-5, 5]
-      newPosition[2], // No limit on z (optional)
+      Math.max(Math.min(newPosition[0], 3), -3), // Limit x within [-3, 3]
+      Math.max(Math.min(newPosition[1], 3), -3), // Limit y within [-3, 3]
+      Math.max(Math.min(newPosition[2], 3), -3), // Limit z within [-3, 3]
     ];
 
     setDraggedPosition(limitedPosition);
