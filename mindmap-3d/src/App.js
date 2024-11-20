@@ -1,14 +1,22 @@
 // src/App.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import MindMap from './components/MindMap';
 
 function App() {
-  const [nodes, setNodes] = useState([
-    { id: 1, position: [0, 0, 0], label: 'Central Node' },
-  ]);
-  const [edges, setEdges] = useState([]);
+  const [nodes, setNodes] = useState(() => {
+    // Load nodes from local storage if available
+    const savedNodes = localStorage.getItem('nodes');
+    return savedNodes ? JSON.parse(savedNodes) : [
+      { id: 1, position: [0, 0, 0], label: 'Central Node', color: 'skyblue', size: 0.3 },
+    ];
+  });
+  const [edges, setEdges] = useState(() => {
+    // Load edges from local storage if available
+    const savedEdges = localStorage.getItem('edges');
+    return savedEdges ? JSON.parse(savedEdges) : [];
+  });
   const [isConnecting, setIsConnecting] = useState(false);
   const [firstNode, setFirstNode] = useState(null);
   const [selectedNode, setSelectedNode] = useState(null);
@@ -18,12 +26,19 @@ function App() {
   const [showEdgeHint, setShowEdgeHint] = useState(false);
   const [nodeColor, setNodeColor] = useState('skyblue');
 
+  useEffect(() => {
+    // Save nodes and edges to local storage whenever they change
+    localStorage.setItem('nodes', JSON.stringify(nodes));
+    localStorage.setItem('edges', JSON.stringify(edges));
+  }, [nodes, edges]);
+
   const addNode = () => {
     const newNode = {
       id: nodes.length + 1,
       position: [Math.random() * 4 - 2, Math.random() * 4 - 2, Math.random() * 4 - 2],
       label: `Node ${nodes.length + 1}`,
       color: nodeColor,
+      size: 0.3, // Default size for new nodes
     };
     setNodes([...nodes, newNode]);
     setSelectedNode(newNode);
@@ -45,7 +60,30 @@ function App() {
         n.id === selectedNode.id ? { ...n, label: newLabel.trim() } : n
       );
       setNodes(updatedNodes);
-      setSelectedNode(null);
+      setSelectedNode({ ...selectedNode, label: newLabel.trim() }); // Update selected node state
+      setNewLabel(''); // Clear the input after submission
+    }
+    setSelectedNode(null); // Hide the editing UI after submission
+  };
+
+  const handleNodeColorChange = (e) => {
+    if (selectedNode) {
+      const updatedNodes = nodes.map((n) =>
+        n.id === selectedNode.id ? { ...n, color: e.target.value } : n
+      );
+      setNodes(updatedNodes);
+      setSelectedNode({ ...selectedNode, color: e.target.value }); // Update selected node state
+    }
+  };
+
+  const handleNodeSizeChange = (e) => {
+    if (selectedNode) {
+      const newSize = parseFloat(e.target.value);
+      const updatedNodes = nodes.map((n) =>
+        n.id === selectedNode.id ? { ...n, size: newSize } : n
+      );
+      setNodes(updatedNodes);
+      setSelectedNode({ ...selectedNode, size: newSize }); // Update selected node state
     }
   };
 
@@ -81,6 +119,16 @@ function App() {
       edge.startId !== nodeId && edge.endId !== nodeId
     ));
     setSelectedNode(null);
+  };
+
+  const handleNodeClick = (node) => {
+    if (selectedNode && selectedNode.id === node.id) {
+      // If the same node is clicked again, deselect it
+      setSelectedNode(null);
+    } else {
+      setSelectedNode(node);
+      setNewLabel(node.label); // Set the current label for editing
+    }
   };
 
   return (
@@ -126,20 +174,19 @@ function App() {
           onClick={startConnecting}
           style={{
             padding: '8px 16px',
-            backgroundColor: isConnecting ? '#f44336' : '#2196F3',
+            backgroundColor: '#2196F3',
             color: 'white',
             border: 'none',
             borderRadius: '4px',
-            cursor: 'pointer',
-            fontWeight: 'bold'
+            cursor: 'pointer'
           }}
         >
           {isConnecting ? 'Cancel Connection' : 'Add Edge'}
         </button>
       </div>
 
-      {/* Node Edit UI */}
-      {selectedNode && !isConnecting && (
+      {/* Node Editing UI */}
+      {selectedNode && (
         <div style={{
           position: 'absolute',
           top: '60px',
@@ -150,7 +197,7 @@ function App() {
           borderRadius: '4px',
           boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
         }}>
-          <div style={{ marginBottom: '5px' }}>Enter node name:</div>
+          <div style={{ marginBottom: '5px' }}>Edit Node:</div>
           <div style={{ display: 'flex', gap: '10px' }}>
             <input
               type="text"
@@ -165,6 +212,32 @@ function App() {
                 width: '200px'
               }}
               autoFocus
+            />
+            <input
+              type="color"
+              value={selectedNode.color}
+              onChange={handleNodeColorChange}
+              style={{
+                width: '40px',
+                height: '40px',
+                padding: '0',
+                border: '2px solid white',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            />
+            <input
+              type="number"
+              value={selectedNode.size}
+              onChange={handleNodeSizeChange}
+              style={{
+                padding: '8px',
+                borderRadius: '4px',
+                border: '1px solid #ccc',
+                width: '60px'
+              }}
+              min="0.1"
+              step="0.1"
             />
             <button
               onClick={() => deleteNode(selectedNode.id)}
@@ -268,6 +341,7 @@ function App() {
           selectedEdge={selectedEdge}
           setSelectedEdge={setSelectedEdge}
           handleEdgeCreation={handleEdgeCreation}
+          handleNodeClick={handleNodeClick} // Pass the click handler
         />
         <OrbitControls />
       </Canvas>

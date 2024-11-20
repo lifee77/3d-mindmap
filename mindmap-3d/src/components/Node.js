@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Text } from '@react-three/drei';
 
-function Node({ position, label, onClick, onDrag, isSelected, isConnecting, color = 'skyblue' }) {
+function Node({ position, label, onClick, onDrag, isSelected, isConnecting, color = 'skyblue', size = 0.3 }) {
   const [dragging, setDragging] = useState(false);
   const [draggedPosition, setDraggedPosition] = useState(position);
 
@@ -55,11 +55,11 @@ function Node({ position, label, onClick, onDrag, isSelected, isConnecting, colo
       }}
     >
       <mesh>
-        <sphereGeometry args={[0.3, 32, 32]} />
+        <sphereGeometry args={[size, 32, 32]} />
         <meshStandardMaterial color={isSelected ? "orange" : color} />
       </mesh>
       <Text
-        position={[0, -0.6, 0]}
+        position={[0, -size - 0.1, 0]}
         fontSize={0.2}
         color="black"
         anchorX="center"

@@ -1,8 +1,7 @@
 // src/components/MindMap.js
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Node from './Node';
 import Edge from './Edge';
-import ReactDOM from 'react-dom';
 
 function MindMap({ 
   nodes, 
@@ -17,31 +16,9 @@ function MindMap({
   setSelectedNode,
   selectedEdge,
   setSelectedEdge,
-  handleEdgeCreation
+  handleEdgeCreation,
+  handleNodeClick
 }) {
-  const handleNodeClick = (node) => {
-    if (isConnecting) {
-      if (!firstNode) {
-        setFirstNode(node);
-      } else if (node.id !== firstNode.id) {
-        const newEdge = {
-          id: `edge-${edges.length + 1}`,
-          startId: firstNode.id,
-          endId: node.id,
-          start: firstNode.position,
-          end: node.position,
-          description: ''
-        };
-        handleEdgeCreation(newEdge);
-        setIsConnecting(false);
-        setFirstNode(null);
-      }
-    } else {
-      setSelectedNode(node);
-      setSelectedEdge(null);
-    }
-  };
-
   const handleEdgeClick = (edge) => {
     setSelectedEdge(edge);
     setSelectedNode(null);
