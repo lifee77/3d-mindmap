@@ -1,7 +1,3 @@
-Here's a sample `README.md` file for your 3D Mindmap application. You can customize it further as per your needs and add any additional details or sections you find necessary.
-
----
-
 # 3D Mindmap Application
 
 A simple 3D mindmap tool built using React, React Three Fiber, and Three.js, designed for visualizing nodes and edges in a 3D space with interactive features. This project provides a basic structure to build upon and enhance into a more sophisticated 3D data visualization tool.
