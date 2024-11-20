@@ -100,7 +100,7 @@ function App() {
       </div>
 
       {/* Node Edit UI */}
-      {selectedNode && (
+      {selectedNode && !isConnecting && (
         <div style={{
           position: 'absolute',
           top: '60px',
@@ -111,6 +111,7 @@ function App() {
           borderRadius: '4px',
           boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
         }}>
+          <div style={{ marginBottom: '5px' }}>Enter node name:</div>
           <input
             type="text"
             value={newLabel}
@@ -140,13 +141,14 @@ function App() {
           borderRadius: '4px',
           boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
         }}>
+          <div style={{ marginBottom: '5px' }}>Enter edge description:</div>
           <input
             type="text"
             value={edgeDescription}
             onChange={handleEdgeDescriptionChange}
             onBlur={handleEdgeDescriptionSubmit}
             onKeyPress={(e) => e.key === 'Enter' && handleEdgeDescriptionSubmit()}
-            placeholder="Enter edge description"
+            placeholder="Describe the connection"
             style={{
               padding: '8px',
               borderRadius: '4px',

@@ -34,6 +34,7 @@ function MindMap({
         setEdges([...edges, newEdge]);
         setIsConnecting(false);
         setFirstNode(null);
+        setSelectedEdge(newEdge);
       }
     } else {
       setSelectedNode(node);
