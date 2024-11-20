@@ -1,21 +1,33 @@
 // src/components/Edge.js
 import React from 'react';
+import { Text, Line } from '@react-three/drei';
 
-function Edge({ start, end }) {
-  const positions = new Float32Array([...start, ...end]);
-
+function Edge({ start, end, description, onClick }) {
+  const points = [start, end];
+  
   return (
-    <line>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={2}
-          array={positions}
-          itemSize={3}
-        />
-      </bufferGeometry>
-      <lineBasicMaterial color="gray" />
-    </line>
+    <group onClick={onClick}>
+      <Line 
+        points={points}
+        color="black"
+        lineWidth={2}
+      />
+      {description && (
+        <Text
+          position={[
+            (start[0] + end[0]) / 2,
+            (start[1] + end[1]) / 2 + 0.2,
+            (start[2] + end[2]) / 2,
+          ]}
+          fontSize={0.2}
+          color="black"
+          anchorX="center"
+          anchorY="middle"
+        >
+          {description}
+        </Text>
+      )}
+    </group>
   );
 }
 

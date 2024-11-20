@@ -1,23 +1,41 @@
 // src/components/Node.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text } from '@react-three/drei';
-import { useThree } from '@react-three/fiber';
 
-function Node({ position, label, onClick }) {
-  const { camera } = useThree();
+function Node({ position, label, onClick, onDrag, isSelected, isConnecting }) {
   const [dragging, setDragging] = useState(false);
   const [draggedPosition, setDraggedPosition] = useState(position);
 
+  useEffect(() => {
+    // Ensure dragged position is updated if the position prop changes
+    setDraggedPosition(position);
+  }, [position]);
+
   const handlePointerDown = (e) => {
+    if (isConnecting) {
+      e.stopPropagation();
+      onClick();
+      return;
+    }
     e.stopPropagation();
     setDragging(true);
   };
 
   const handlePointerMove = (e) => {
-    if (!dragging) return;
+    if (!dragging || isConnecting) return;
     e.stopPropagation();
-    const [x, y, z] = e.unprojectedPoint.toArray(); // Adjust projection as needed
-    setDraggedPosition([x, y, z]);
+    // Calculate the new position in Three.js coordinates
+    const newPosition = [e.point.x, e.point.y, e.point.z];
+
+    // Apply movement limits to prevent nodes from moving out of frame
+    const limitedPosition = [
+      Math.max(Math.min(newPosition[0], 5), -5), // Limit x within [-5, 5]
+      Math.max(Math.min(newPosition[1], 5), -5), // Limit y within [-5, 5]
+      newPosition[2], // No limit on z (optional)
+    ];
+
+    setDraggedPosition(limitedPosition);
+    if (onDrag) onDrag(limitedPosition);
   };
 
   const handlePointerUp = () => {
@@ -30,11 +48,14 @@ function Node({ position, label, onClick }) {
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
-      onClick={onClick}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (!dragging) onClick();
+      }}
     >
       <mesh>
         <sphereGeometry args={[0.3, 32, 32]} />
-        <meshStandardMaterial color="skyblue" />
+        <meshStandardMaterial color={isSelected ? "orange" : "skyblue"} />
       </mesh>
       <Text
         position={[0, -0.6, 0]}
