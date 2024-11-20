@@ -82,6 +82,7 @@ function MindMap({
           key={node.id}
           position={node.position}
           label={node.label}
+          color={node.color}
           onClick={() => handleNodeClick(node)}
           onDrag={(newPosition) => handleNodeDrag(node.id, newPosition)}
           isSelected={selectedNode?.id === node.id || firstNode?.id === node.id}

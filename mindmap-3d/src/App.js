@@ -16,12 +16,14 @@ function App() {
   const [newLabel, setNewLabel] = useState('');
   const [edgeDescription, setEdgeDescription] = useState('');
   const [showEdgeHint, setShowEdgeHint] = useState(false);
+  const [nodeColor, setNodeColor] = useState('skyblue');
 
   const addNode = () => {
     const newNode = {
       id: nodes.length + 1,
       position: [Math.random() * 4 - 2, Math.random() * 4 - 2, Math.random() * 4 - 2],
       label: `Node ${nodes.length + 1}`,
+      color: nodeColor,
     };
     setNodes([...nodes, newNode]);
     setSelectedNode(newNode);
@@ -73,6 +75,14 @@ function App() {
     handleFirstEdge();
   };
 
+  const deleteNode = (nodeId) => {
+    setNodes(nodes.filter(node => node.id !== nodeId));
+    setEdges(edges.filter(edge => 
+      edge.startId !== nodeId && edge.endId !== nodeId
+    ));
+    setSelectedNode(null);
+  };
+
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
       {/* UI Controls */}
@@ -82,8 +92,22 @@ function App() {
         left: '10px', 
         zIndex: 1000,
         display: 'flex',
-        gap: '10px'
+        gap: '10px',
+        alignItems: 'center'
       }}>
+        <input
+          type="color"
+          value={nodeColor}
+          onChange={(e) => setNodeColor(e.target.value)}
+          style={{
+            width: '40px',
+            height: '40px',
+            padding: '0',
+            border: '2px solid white',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        />
         <button 
           onClick={addNode}
           style={{
@@ -127,20 +151,35 @@ function App() {
           boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
         }}>
           <div style={{ marginBottom: '5px' }}>Enter node name:</div>
-          <input
-            type="text"
-            value={newLabel}
-            onChange={handleLabelChange}
-            onBlur={handleLabelSubmit}
-            onKeyPress={(e) => e.key === 'Enter' && handleLabelSubmit()}
-            style={{
-              padding: '8px',
-              borderRadius: '4px',
-              border: '1px solid #ccc',
-              width: '200px'
-            }}
-            autoFocus
-          />
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <input
+              type="text"
+              value={newLabel}
+              onChange={handleLabelChange}
+              onBlur={handleLabelSubmit}
+              onKeyPress={(e) => e.key === 'Enter' && handleLabelSubmit()}
+              style={{
+                padding: '8px',
+                borderRadius: '4px',
+                border: '1px solid #ccc',
+                width: '200px'
+              }}
+              autoFocus
+            />
+            <button
+              onClick={() => deleteNode(selectedNode.id)}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#f44336',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              Delete
+            </button>
+          </div>
         </div>
       )}
 
